@@ -150,6 +150,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="ColliderComponent.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Components.h" />

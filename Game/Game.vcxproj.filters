@@ -57,6 +57,9 @@
     <ClInclude Include="TileComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Game.rc">
