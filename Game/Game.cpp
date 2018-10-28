@@ -30,6 +30,11 @@ enum groupLabels : std::size_t
 	groupColliders
 };
 
+bool Game::isRunning = false;
+
+auto& tiles(manager.getGroup(groupMap));
+auto& players(manager.getGroup(groupPlayers));
+auto& enemies(manager.getGroup(groupEnemies));
 
 Game::Game() {
 
@@ -85,11 +90,15 @@ void Game::update() {
 
 	manager.refresh();
 	manager.update();
-	for (auto cc : colliders)
-	{
-		Collision::AABB(player.getComponent<ColliderComponent>(), *cc);
-	}
 
+	Vector2D pVel = player.getComponent<TransformComponent>().velocity;
+	int pSpeed = player.getComponent<TransformComponent>().speed;
+
+	for (auto t : tiles)
+	{
+		t->getComponent<TileComponent>().dstRect.x += -(pVel.x * pSpeed);
+		t->getComponent<TileComponent>().dstRect.y += -(pVel.y * pSpeed);
+	}
 
 }
 void Game::handleEvents() {
@@ -101,9 +110,7 @@ void Game::handleEvents() {
 	}
 }
 
-auto& tiles(manager.getGroup(groupMap));
-auto& players(manager.getGroup(groupPlayers));
-auto& enemies(manager.getGroup(groupEnemies));
+
 
 
 void Game::render(){
