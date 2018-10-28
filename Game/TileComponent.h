@@ -9,6 +9,7 @@ public:
 
 	SDL_Rect srcRect, dstRect;
 	SDL_Texture* texture;
+	Vector2D position;
 
 	TileComponent() = default;
 	~TileComponent()
@@ -20,6 +21,9 @@ public:
 	{
 		texture = TextureManager::LoadTexture(path);
 
+		position.x = xPos;
+		position.y = yPos;
+
 		srcRect.x = srcX;
 		srcRect.y = srcY;
 		srcRect.w = srcRect.h = 32;
@@ -27,6 +31,12 @@ public:
 		dstRect.x = xPos;
 		dstRect.y = yPos;
 		dstRect.w = dstRect.h = 64;
+	}
+
+	void update() override
+	{
+		dstRect.x = position.x - Game::camera.x;
+		dstRect.y = position.y - Game::camera.y;
 	}
 
 	void draw() override

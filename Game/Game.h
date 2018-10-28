@@ -23,6 +23,7 @@ public:
 
 	static SDL_Renderer* renderer;
 	static SDL_Event event;
+	static SDL_Rect camera;
 
 	static std::vector<ColliderComponent*>colliders;
 	static bool isRunning;
