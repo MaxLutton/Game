@@ -16,6 +16,8 @@ auto& tile0(manager.addEntity());
 auto& tile1(manager.addEntity());
 auto& tile2(manager.addEntity());
 
+const char* mapfile = "assets/terrain_ss.png";
+
 std::vector<ColliderComponent*> Game::colliders;
 
 SDL_Event Game::event;
@@ -65,18 +67,18 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 
 	map = new Map();
 	//ECS implementation
-	Map::loadMap("assets/p16x16.map", 16, 16);
+	Map::loadMap("assets/map.map", 25, 20);
 
-	player.addComponent<TransformComponent>(2);
+	player.addComponent<TransformComponent>(4);
 	player.addComponent<SpriteComponent>("assets/player_animations.png", true);
 	player.addComponent<KeyboardController>();
 	player.addComponent<ColliderComponent>("player");
 	player.addGroup(groupPlayers);
 
-	wall.addComponent<TransformComponent>(300.0f, 300.0f, 300, 20, 1);
-	wall.addComponent<SpriteComponent>("assets/dirt.png");
-	wall.addComponent<ColliderComponent>("wall");
-	wall.addGroup(groupMap);
+	//wall.addComponent<TransformComponent>(300.0f, 300.0f, 300, 20, 1);
+	//wall.addComponent<SpriteComponent>("assets/dirt.png");
+	//wall.addComponent<ColliderComponent>("wall");
+	//wall.addGroup(groupMap);
 }
 
 void Game::update() {
@@ -129,10 +131,10 @@ void Game::clean(){
 	std::cout << "Game Cleaned..." << std::endl;
 }
 
-void Game::addTile(int id, int x, int y)
+void Game::addTile(int srcX, int srcY, int xPos, int yPos)
 {
 	auto& tile(manager.addEntity());
-	tile.addComponent<TileComponent>(x, y, 32, 32, id);
+	tile.addComponent<TileComponent>(srcX, srcY, xPos, yPos, mapfile);
 	tile.addGroup(groupMap);
 
 }
