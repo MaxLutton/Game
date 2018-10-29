@@ -11,32 +11,17 @@ Map* map;
 
 Manager manager;
 auto& player(manager.addEntity());
-auto& wall(manager.addEntity());
 auto& tile0(manager.addEntity());
 auto& tile1(manager.addEntity());
 auto& tile2(manager.addEntity());
-
-const char* mapfile = "assets/terrain_ss.png";
-
-std::vector<ColliderComponent*> Game::colliders;
 
 SDL_Event Game::event;
 
 SDL_Rect Game::camera = { 0, 0, 800, 640 };
 
-enum groupLabels : std::size_t
-{
-	groupMap,
-	groupPlayers,
-	groupEnemies,
-	groupColliders
-};
-
 bool Game::isRunning = false;
 
-auto& tiles(manager.getGroup(groupMap));
-auto& players(manager.getGroup(groupPlayers));
-auto& enemies(manager.getGroup(groupEnemies));
+
 
 Game::Game() {
 
@@ -72,26 +57,42 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 		this->isRunning = false;
 	}
 
-	map = new Map();
+	map = new Map("assets/terrain_ss.png", 3, 32);
+	
 	//ECS implementation
-	Map::loadMap("assets/map.map", 25, 20);
+	
+	map->loadMap("assets/map.map", 25, 20);
 
-	player.addComponent<TransformComponent>(4);
+	player.addComponent<TransformComponent>(800, 640, 32, 32, 4);
 	player.addComponent<SpriteComponent>("assets/player_animations.png", true);
 	player.addComponent<KeyboardController>();
 	player.addComponent<ColliderComponent>("player");
 	player.addGroup(groupPlayers);
 
-	//wall.addComponent<TransformComponent>(300.0f, 300.0f, 300, 20, 1);
-	//wall.addComponent<SpriteComponent>("assets/dirt.png");
-	//wall.addComponent<ColliderComponent>("wall");
-	//wall.addGroup(groupMap);
 }
 
-void Game::update() {
+auto& tiles(manager.getGroup(Game::groupMap));
+auto& players(manager.getGroup(Game::groupPlayers));
+auto& colliders(manager.getGroup(Game::groupColliders));
+
+void Game::update() 
+{
+	SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
+	Vector2D playerPos = player.getComponent<TransformComponent>().position;
 
 	manager.refresh();
 	manager.update();
+
+	for (auto& c : colliders)
+	{
+		SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+		// If collision, just put keep player at position
+		if (Collision::AABB(cCol, playerCol))
+		{
+			std::cout << "hit" << std::endl;
+			player.getComponent<TransformComponent>().position = playerPos;
+		}
+	}
 
 	camera.x = player.getComponent<TransformComponent>().position.x - 400;
 	camera.y = player.getComponent<TransformComponent>().position.y - 320;
@@ -106,6 +107,7 @@ void Game::update() {
 		camera.y = camera.h;
 
 }
+
 void Game::handleEvents() {
 	SDL_PollEvent(&event);
 	switch (event.type) {
@@ -130,10 +132,11 @@ void Game::render(){
 	{
 		p->draw();
 	}
-	for (auto& e : enemies)
+	for (auto& c : colliders)
 	{
-		e->draw();
+		c->draw();
 	}
+
 	SDL_RenderPresent(this->renderer);
 }
 void Game::clean(){
@@ -141,12 +144,4 @@ void Game::clean(){
 	SDL_DestroyRenderer(this->renderer);
 	SDL_Quit();
 	std::cout << "Game Cleaned..." << std::endl;
-}
-
-void Game::addTile(int srcX, int srcY, int xPos, int yPos)
-{
-	auto& tile(manager.addEntity());
-	tile.addComponent<TileComponent>(srcX, srcY, xPos, yPos, mapfile);
-	tile.addGroup(groupMap);
-
 }
