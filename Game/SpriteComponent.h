@@ -4,7 +4,7 @@
 #include "TextureManager.h"
 #include "Animation.h"
 #include <map>
-
+#include "AssetManager.h"
 class SpriteComponent : public Component {
 private:
 	TransformComponent* transform;
@@ -24,10 +24,10 @@ public:
 	SDL_RendererFlip spriteFlip = SDL_FLIP_NONE;
 
 	SpriteComponent() = default;
-	SpriteComponent(const char* path) {
-		setTex(path);
+	SpriteComponent(std::string id) {
+		setTex(id);
 	}
-	SpriteComponent(const char* path, bool isAnimated) {
+	SpriteComponent(std::string id, bool isAnimated) {
 		animated = isAnimated;
 
 		Animation idle = Animation(0, 3, 100);
@@ -38,11 +38,9 @@ public:
 		
 		play("Idle");
 
-		setTex(path);
+		setTex(id);
 	}
-	~SpriteComponent() {
-		SDL_DestroyTexture(tex);
-	}
+	~SpriteComponent() {}
 
 	void init() override {
 		transform = &entity->getComponent<TransformComponent>();
@@ -69,8 +67,8 @@ public:
 	void draw() override{
 		TextureManager::Draw(tex, srcRect, dstRect, spriteFlip);
 	}
-	void setTex(const char* path) {
-		tex = TextureManager::LoadTexture(path);
+	void setTex(std::string id) {
+		tex = Game::assets->getTexture(id);
 	}
 
 	void play(const char* animName)
