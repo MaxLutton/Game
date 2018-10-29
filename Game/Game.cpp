@@ -5,6 +5,7 @@
 #include "Vector2D.h"
 #include "Collision.h"
 #include "AssetManager.h"
+#include <sstream>
 
 Map* map;
 
@@ -12,9 +13,10 @@ Map* map;
 
 Manager manager;
 auto& player(manager.addEntity());
-auto& tile0(manager.addEntity());
-auto& tile1(manager.addEntity());
-auto& tile2(manager.addEntity());
+//auto& tile0(manager.addEntity());
+//auto& tile1(manager.addEntity());
+//auto& tile2(manager.addEntity());
+auto& label(manager.addEntity());
 
 SDL_Event Game::event;
 
@@ -54,9 +56,16 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 		this->isRunning = false;
 	}
 
+	if (TTF_Init() == -1)
+	{
+		std::cout << "Error: SDL_TTF" << std::endl;
+	}
+
 	assets->addTexture("terrain", "assets/terrain_ss.png");
 	assets->addTexture("player", "assets/player_animations.png");
 	assets->addTexture("projectile", "assets/proj.png");
+
+	assets->addFont("arial", "assets/arial.ttf", 16);
 
 	map = new Map("terrain", 3, 32);
 	
@@ -69,6 +78,8 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 	player.addComponent<KeyboardController>();
 	player.addComponent<ColliderComponent>("player");
 	player.addGroup(groupPlayers);
+	SDL_Color white = { 255, 255, 255, 255 };
+	label.addComponent<UILabel>(10, 10, "Test String", "arial", white);
 
 	assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
 	assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
@@ -86,6 +97,10 @@ void Game::update()
 {
 	SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
 	Vector2D playerPos = player.getComponent<TransformComponent>().position;
+
+	std::stringstream ss;
+	ss << "Player position: " << playerPos;
+	label.getComponent<UILabel>().setLabelText(ss.str(), "arial");
 
 	manager.refresh();
 	manager.update();
@@ -110,6 +125,7 @@ void Game::update()
 			p->destroy();
 		}
 	}
+
 
 	camera.x = player.getComponent<TransformComponent>().position.x - 400;
 	camera.y = player.getComponent<TransformComponent>().position.y - 320;
@@ -157,6 +173,8 @@ void Game::render(){
 	{
 		p->draw();
 	}
+
+	label.draw();
 
 	SDL_RenderPresent(this->renderer);
 }

@@ -66,6 +66,9 @@
     <ClInclude Include="ProjectileComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UILabel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Game.rc">
