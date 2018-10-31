@@ -7,16 +7,18 @@
 #include "AssetManager.h"
 #include <sstream>
 
+// for random num
+#include <stdlib.h> 
+#include <time.h> 
+
 Map* map;
 
-//SDL_Renderer* Game::renderer = nullptr;
 
 Manager manager;
 auto& player(manager.addEntity());
-//auto& tile0(manager.addEntity());
-//auto& tile1(manager.addEntity());
-//auto& tile2(manager.addEntity());
 auto& label(manager.addEntity());
+auto& scarecrow(manager.addEntity());
+Vector2D Game::mPlayerPos;
 
 SDL_Event Game::event;
 
@@ -62,8 +64,10 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 	}
 
 	assets->addTexture("terrain", "assets/terrain_ss.png");
+	//assets->addTexture("terrain", "assets/ugly_terrain.png");
 	assets->addTexture("player", "assets/player_animations.png");
 	assets->addTexture("projectile", "assets/proj.png");
+	assets->addTexture("scarecrow", "assets/scarecrow_animations.png");
 
 	assets->addFont("arial", "assets/arial.ttf", 16);
 
@@ -72,19 +76,27 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 	//ECS implementation
 	
 	map->loadMap("assets/map.map", 25, 20);
+	//map->loadMap("assets/ugly_collision_map2.txt", 20, 8);
 
 	player.addComponent<TransformComponent>(800, 640, 32, 32, 4);
 	player.addComponent<SpriteComponent>("player", true);
 	player.addComponent<KeyboardController>();
 	player.addComponent<ColliderComponent>("player");
 	player.addGroup(groupPlayers);
+
+	scarecrow.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
+	scarecrow.addComponent<SpriteComponent>("scarecrow", true);
+	scarecrow.addComponent<ColliderComponent>("scarecrow"); // <- just adding in a tag
+	scarecrow.addGroup(groupScarecrows);
+	scarecrow.addComponent<RandomWalkComponent>();
+
 	SDL_Color white = { 255, 255, 255, 255 };
 	label.addComponent<UILabel>(10, 10, "Test String", "arial", white);
 
 	assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
-	assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
-	assets->createProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
-	assets->createProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
 
 }
 
@@ -92,14 +104,15 @@ auto& tiles(manager.getGroup(Game::groupMap));
 auto& players(manager.getGroup(Game::groupPlayers));
 auto& colliders(manager.getGroup(Game::groupColliders));
 auto& projectiles(manager.getGroup(Game::groupProjectiles));
+auto& scarecrows(manager.getGroup(Game::groupScarecrows)); // <- getting all the scarecrow entities from manager
 
 void Game::update() 
 {
 	SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
-	Vector2D playerPos = player.getComponent<TransformComponent>().position;
+	Game::mPlayerPos = player.getComponent<TransformComponent>().position;
 
 	std::stringstream ss;
-	ss << "Player position: " << playerPos;
+	ss << "Player position: " << mPlayerPos;
 	label.getComponent<UILabel>().setLabelText(ss.str(), "arial");
 
 	manager.refresh();
@@ -112,8 +125,34 @@ void Game::update()
 		if (Collision::AABB(cCol, playerCol))
 		{
 			std::cout << "hit" << std::endl;
-			player.getComponent<TransformComponent>().position = playerPos;
+			player.getComponent<TransformComponent>().position = mPlayerPos;
 		}
+	}
+
+	srand(time(NULL));
+	for (auto& s : scarecrows)
+	{
+		if (s->getComponent<RandomWalkComponent>().getNewWalk)
+		{
+			int rando = rand() % 8;
+			if (rando == 0)
+			{
+				s->getComponent<RandomWalkComponent>().setNewWalk(Vector2D(1, 0), 100, 2);
+			}
+			else if (rando == 2)
+			{
+				s->getComponent<RandomWalkComponent>().setNewWalk(Vector2D(-1, 0), 100, 2);
+			}
+			else if (rando == 4)
+			{
+				s->getComponent<RandomWalkComponent>().setNewWalk(Vector2D(0, 1), 100, 2);
+			}
+			else if (rando == 6)
+			{
+				s->getComponent<RandomWalkComponent>().setNewWalk(Vector2D(0, -1), 100, 2);
+			}
+		}
+
 	}
 
 	for (auto& p : projectiles)
@@ -164,6 +203,10 @@ void Game::render(){
 	for (auto& p : players)
 	{
 		p->draw();
+	}
+	for (auto& s : scarecrows)
+	{
+		s->draw();
 	}
 	for (auto& c : colliders)
 	{

@@ -161,6 +161,7 @@
     <ClInclude Include="KeyboardController.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="ProjectileComponent.h" />
+    <ClInclude Include="RandomWalkComponent.h" />
     <ClInclude Include="TileComponent.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="resource.h" />

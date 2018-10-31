@@ -7,6 +7,8 @@
 
 class ColliderComponent;
 class AssetManager;
+class Manager;
+class Vector2D;
 
 class Game {
 public:
@@ -25,13 +27,16 @@ public:
 	static SDL_Rect camera;
 	static bool isRunning;
 	static AssetManager* assets;
+	static Vector2D mPlayerPos;
+
 
 	enum groupLabels : std::size_t
 	{
 		groupMap,
 		groupPlayers,
 		groupColliders,
-		groupProjectiles
+		groupProjectiles,
+		groupScarecrows
 	};
 
 
