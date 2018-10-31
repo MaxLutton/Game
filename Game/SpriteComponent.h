@@ -30,31 +30,19 @@ public:
 	SpriteComponent(std::string id, bool isAnimated) {
 		animated = isAnimated;
 
-		Animation idle = Animation(0, 3, 100);
-		Animation walk = Animation(1, 8, 100);
+		Animation idle = Animation(0, 3, 200);
+		Animation walk = Animation(1, 8, 200);
+		Animation explode = Animation(2, 5, 200);
 
 		animations.emplace("Idle", idle);
 		animations.emplace("Walk", walk);
+		animations.emplace("Explode", explode);
 		
 		play("Idle");
 
 		setTex(id);
 	}
-	SpriteComponent(std::string id, bool isAnimated, bool isScarecrow) {
-		animated = isAnimated;
 
-		Animation idle = Animation(0, 3, 100);
-		Animation walk = Animation(1, 8, 100);
-		Animation explode = Animation(2, 5, 100);
-
-		animations.emplace("Idle", idle);
-		animations.emplace("Walk", walk);
-		animations.emplace("Explode", explode);
-
-		play("Idle");
-
-		setTex(id);
-	}
 	~SpriteComponent() {}
 
 	void init() override {

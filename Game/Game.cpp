@@ -20,6 +20,11 @@ auto& label(manager.addEntity());
 auto& scarecrow(manager.addEntity());
 Vector2D Game::mPlayerPos;
 
+time_t Game::lastLostLife;
+time_t Game::enemyTimer;
+int Game::enemiesSpawned;
+int Game::enemyLevel;
+
 SDL_Event Game::event;
 
 SDL_Rect Game::camera = { 0, 0, 800, 640 };
@@ -34,6 +39,7 @@ Game::~Game() {}
 
 void Game::init(const char* title, int width, int height, bool fullscreen) {
 
+	lastLostLife = time(0);
 	int flags = 0;
 	if (fullscreen) {
 		flags = SDL_WINDOW_FULLSCREEN;
@@ -83,20 +89,26 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 	player.addComponent<KeyboardController>();
 	player.addComponent<ColliderComponent>("player");
 	player.addGroup(groupPlayers);
+	player.addComponent<HealthComponent>(3, "player");
 
 	scarecrow.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
 	scarecrow.addComponent<SpriteComponent>("scarecrow", true);
 	scarecrow.addComponent<ColliderComponent>("scarecrow"); // <- just adding in a tag
 	scarecrow.addGroup(groupScarecrows);
 	scarecrow.addComponent<RandomWalkComponent>();
+	scarecrow.addComponent<HealthComponent>(1, "scarecrow");
+	enemyTimer = time(0);
 
 	SDL_Color white = { 255, 255, 255, 255 };
 	label.addComponent<UILabel>(10, 10, "Test String", "arial", white);
 
-	assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
 	//assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
 	//assets->createProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
 	//assets->createProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
+
+	enemiesSpawned = 1;
+	enemyLevel = 5;
 
 }
 
@@ -108,11 +120,12 @@ auto& scarecrows(manager.getGroup(Game::groupScarecrows)); // <- getting all the
 
 void Game::update() 
 {
+
 	SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
 	Game::mPlayerPos = player.getComponent<TransformComponent>().position;
-
+	int lives = player.getComponent<HealthComponent>().lives;
 	std::stringstream ss;
-	ss << "Player position: " << mPlayerPos;
+	ss << "Player position: " << mPlayerPos << " Player Lives: " << lives;
 	label.getComponent<UILabel>().setLabelText(ss.str(), "arial");
 
 	manager.refresh();
@@ -126,6 +139,22 @@ void Game::update()
 		{
 			std::cout << "hit" << std::endl;
 			player.getComponent<TransformComponent>().position = mPlayerPos;
+		}
+	}
+
+	for (auto& s : scarecrows)
+	{
+		SDL_Rect cCol = s->getComponent<ColliderComponent>().collider;
+		if (Collision::AABB(cCol, playerCol))
+		{
+			player.getComponent<SpriteComponent>().play("Explode");
+			double timeDiff = difftime(time(0), lastLostLife);
+			if (timeDiff > 2)
+			{
+				std::cout << "LOST A LIFE" << std::endl;
+				player.getComponent<HealthComponent>().takeLife();
+				lastLostLife = time(0);
+			}
 		}
 	}
 
@@ -157,12 +186,18 @@ void Game::update()
 
 	for (auto& p : projectiles)
 	{
-		if (Collision::AABB(player.getComponent<ColliderComponent>().collider,
-							p->getComponent<ColliderComponent>().collider))
+		for (auto& s : scarecrows)
 		{
-			std::cout << "Hit Player" << std::endl;
-			p->destroy();
+			if (Collision::AABB(s->getComponent<ColliderComponent>().collider,
+				p->getComponent<ColliderComponent>().collider))
+			{
+				std::cout << "Hit A Stupid Scarecrow!" << std::endl;
+				p->destroy();
+				s->getComponent<HealthComponent>().takeLife();
+				s->getComponent<SpriteComponent>().play("Explode");
+			}
 		}
+
 	}
 
 
@@ -178,6 +213,19 @@ void Game::update()
 	if (camera.y > camera.h)
 		camera.y = camera.h;
 
+	if (difftime(time(0), enemyTimer) > 5 && enemiesSpawned < enemyLevel)
+	{
+		auto& tempEnemy(manager.addEntity());
+		tempEnemy.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
+		std::string name = "scarecrow" + std::to_string(enemiesSpawned);
+		tempEnemy.addComponent<SpriteComponent>("scarecrow", true);
+		tempEnemy.addComponent<ColliderComponent>(name); // <- just adding in a tag
+		tempEnemy.addGroup(groupScarecrows);
+		tempEnemy.addComponent<RandomWalkComponent>();
+		tempEnemy.addComponent<HealthComponent>(1, name);
+		enemyTimer = time(0);
+		enemiesSpawned++;
+	}
 }
 
 void Game::handleEvents() {

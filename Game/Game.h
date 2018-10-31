@@ -28,7 +28,10 @@ public:
 	static bool isRunning;
 	static AssetManager* assets;
 	static Vector2D mPlayerPos;
-
+	static time_t lastLostLife;
+	static time_t enemyTimer;
+	static int enemiesSpawned;
+	static int enemyLevel;
 
 	enum groupLabels : std::size_t
 	{
