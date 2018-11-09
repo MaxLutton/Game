@@ -17,13 +17,23 @@ Map* map;
 Manager manager;
 auto& player(manager.addEntity());
 auto& label(manager.addEntity());
+auto& welcome(manager.addEntity());
+auto& gameOver(manager.addEntity());
+auto& nextLevel(manager.addEntity());
 auto& scarecrow(manager.addEntity());
+auto& sandwich(manager.addEntity());
+auto& controls(manager.addEntity());
 Vector2D Game::mPlayerPos;
 
 time_t Game::lastLostLife;
 time_t Game::enemyTimer;
 int Game::enemiesSpawned;
 int Game::enemyLevel;
+int Game::enemiesLeftToKill;
+bool Game::goToMenu = true;
+int Game::score = 0;
+int Game::enemyTime;
+
 
 SDL_Event Game::event;
 
@@ -33,7 +43,10 @@ AssetManager* Game::assets = new AssetManager(&manager);
 
 bool Game::isRunning = false;
 
-Game::Game() {}
+Game::Game() 
+{
+	goToMenu = true;
+}
 
 Game::~Game() {}
 
@@ -69,46 +82,53 @@ void Game::init(const char* title, int width, int height, bool fullscreen) {
 		std::cout << "Error: SDL_TTF" << std::endl;
 	}
 
-	assets->addTexture("terrain", "assets/terrain_ss.png");
-	//assets->addTexture("terrain", "assets/ugly_terrain.png");
-	assets->addTexture("player", "assets/player_animations.png");
-	assets->addTexture("projectile", "assets/proj.png");
-	assets->addTexture("scarecrow", "assets/scarecrow_animations.png");
-
 	assets->addFont("arial", "assets/arial.ttf", 16);
+	assets->addFont("arial", "assets/arial.ttf", 100);
 
-	map = new Map("terrain", 3, 32);
-	
-	//ECS implementation
-	
-	map->loadMap("assets/map.map", 25, 20);
-	//map->loadMap("assets/ugly_collision_map2.txt", 20, 8);
 
-	player.addComponent<TransformComponent>(800, 640, 32, 32, 4);
-	player.addComponent<SpriteComponent>("player", true);
-	player.addComponent<KeyboardController>();
-	player.addComponent<ColliderComponent>("player");
-	player.addGroup(groupPlayers);
-	player.addComponent<HealthComponent>(3, "player");
+	//assets->addTexture("terrain", "assets/terrain_ss.png");
+	////assets->addTexture("terrain", "assets/ugly_terrain.png");
+	//assets->addTexture("player", "assets/player_animations.png");
+	//assets->addTexture("projectile", "assets/proj.png");
+	//assets->addTexture("scarecrow", "assets/scarecrow_animations.png");
 
-	scarecrow.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
-	scarecrow.addComponent<SpriteComponent>("scarecrow", true);
-	scarecrow.addComponent<ColliderComponent>("scarecrow"); // <- just adding in a tag
-	scarecrow.addGroup(groupScarecrows);
-	scarecrow.addComponent<RandomWalkComponent>();
-	scarecrow.addComponent<HealthComponent>(1, "scarecrow");
-	enemyTimer = time(0);
+	//assets->addFont("arial", "assets/arial.ttf", 16);
 
-	SDL_Color white = { 255, 255, 255, 255 };
-	label.addComponent<UILabel>(10, 10, "Test String", "arial", white);
+	//map = new Map("terrain", 3, 32);
 
-	//assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
-	//assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
-	//assets->createProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
-	//assets->createProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
+	////ECS implementation
 
-	enemiesSpawned = 1;
-	enemyLevel = 5;
+	//map->loadMap("assets/map.map", 25, 20);
+	////map->loadMap("assets/ugly_collision_map2.txt", 20, 8);
+
+	//player.addComponent<TransformComponent>(800, 640, 32, 32, 4);
+	//player.addComponent<SpriteComponent>("player", true);
+	//player.addComponent<KeyboardController>();
+	//player.addComponent<ColliderComponent>("player");
+	//player.addGroup(groupPlayers);
+	//player.addComponent<HealthComponent>(3, "player");
+
+	//scarecrow.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
+	//scarecrow.addComponent<SpriteComponent>("scarecrow", true);
+	//scarecrow.addComponent<ColliderComponent>("scarecrow"); // <- just adding in a tag
+	//scarecrow.addGroup(groupScarecrows);
+	//scarecrow.addComponent<RandomWalkComponent>();
+	//scarecrow.addComponent<HealthComponent>(1, "scarecrow");
+	//enemyTimer = time(0);
+
+	//SDL_Color white = { 255, 255, 255, 255 };
+	//label.addComponent<UILabel>(10, 10, "Test String", "arial", white);
+
+	////assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
+	////assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
+	////assets->createProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
+	////assets->createProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
+
+	//enemiesSpawned = 1;
+	//enemyLevel = 5;
+	//enemiesLeftToKill = enemyLevel;
+
+
 
 }
 
@@ -125,22 +145,22 @@ void Game::update()
 	Game::mPlayerPos = player.getComponent<TransformComponent>().position;
 	int lives = player.getComponent<HealthComponent>().lives;
 	std::stringstream ss;
-	ss << "Player position: " << mPlayerPos << " Player Lives: " << lives;
+	ss << " Daisy's Lives: " << lives << " Daisy's Score: " << score << " Stupid Scarecrows left: " << enemiesLeftToKill;
 	label.getComponent<UILabel>().setLabelText(ss.str(), "arial");
 
 	manager.refresh();
 	manager.update();
 
-	for (auto& c : colliders)
-	{
-		SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
-		// If collision, just put keep player at position
-		if (Collision::AABB(cCol, playerCol))
-		{
-			std::cout << "hit" << std::endl;
-			player.getComponent<TransformComponent>().position = mPlayerPos;
-		}
-	}
+	//for (auto& c : colliders)
+	//{
+	//	SDL_Rect cCol = c->getComponent<ColliderComponent>().collider;
+	//	// If collision, just put keep player at position
+	//	if (Collision::AABB(cCol, playerCol))
+	//	{
+	//		std::cout << "hit" << std::endl;
+	//		player.getComponent<TransformComponent>().position = mPlayerPos;
+	//	}
+	//}
 
 	for (auto& s : scarecrows)
 	{
@@ -157,6 +177,7 @@ void Game::update()
 			}
 		}
 	}
+
 
 	srand(time(NULL));
 	for (auto& s : scarecrows)
@@ -195,6 +216,7 @@ void Game::update()
 				p->destroy();
 				s->getComponent<HealthComponent>().takeLife();
 				s->getComponent<SpriteComponent>().play("Explode");
+				score++;
 			}
 		}
 
@@ -213,7 +235,7 @@ void Game::update()
 	if (camera.y > camera.h)
 		camera.y = camera.h;
 
-	if (difftime(time(0), enemyTimer) > 5 && enemiesSpawned < enemyLevel)
+	if (difftime(time(0), enemyTimer) > enemyTime && enemiesSpawned < enemyLevel)
 	{
 		auto& tempEnemy(manager.addEntity());
 		tempEnemy.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
@@ -225,6 +247,37 @@ void Game::update()
 		tempEnemy.addComponent<HealthComponent>(1, name);
 		enemyTimer = time(0);
 		enemiesSpawned++;
+	}
+
+	if (player.getComponent<HealthComponent>().lives <= 0)
+	{
+		SDL_Color orange = { 255, 165, 0, 255 };
+		gameOver.addComponent<UILabel>(400,320, "GAME OVER", "arial", orange);
+	}
+	if (enemiesLeftToKill == 0 && !sandwichOn)
+	{
+		sandwichOn = true;
+		sandwich.getComponent<TransformComponent>().position = Vector2D(player.getComponent<TransformComponent>().position.x - 200, player.getComponent<TransformComponent>().position.y);
+		SDL_Color orange = { 255, 165, 0, 255 };
+		nextLevel.addComponent<UILabel>(400, 320, "NEXT LEVEL STARTING NOW", "arial", orange);
+	}
+
+	if (sandwichOn)
+	{
+
+		if (Collision::AABB(player.getComponent<ColliderComponent>().collider,
+			sandwich.getComponent<ColliderComponent>().collider))
+		{
+			score += 10;
+			enemyLevel *= 2;
+			enemiesLeftToKill = enemyLevel;
+			enemiesSpawned = 0;
+			player.getComponent<HealthComponent>().lives = 3;
+			if (enemyTime > 1)
+				enemyTime--;
+			sandwich.getComponent<TransformComponent>().position.x = -1;
+			sandwichOn = false;
+		}
 	}
 }
 
@@ -256,17 +309,25 @@ void Game::render(){
 	{
 		s->draw();
 	}
-	for (auto& c : colliders)
-	{
-		c->draw();
-	}
+	//for (auto& c : colliders)
+	//{
+	//	c->draw();
+	//}
 	for (auto& p : projectiles)
 	{
 		p->draw();
 	}
 
+	if (player.getComponent<HealthComponent>().lives <= 0)
+		gameOver.draw();
+	//welcome.draw();
 	label.draw();
-
+	controls.draw();
+	if (sandwichOn)
+	{
+		sandwich.draw();
+		nextLevel.draw();
+	}
 	SDL_RenderPresent(this->renderer);
 }
 void Game::clean(){
@@ -274,4 +335,71 @@ void Game::clean(){
 	SDL_DestroyRenderer(this->renderer);
 	SDL_Quit();
 	std::cout << "Game Cleaned..." << std::endl;
+}
+
+void Game::flashWelcome()
+{
+	std::stringstream s;
+	manager.refresh();
+	manager.update();
+	SDL_Color black = { 255, 165, 0, 255 };
+	welcome.addComponent<UILabel>(10, 10, "Test String", "arial", black);
+	SDL_RenderClear(this->renderer);
+	welcome.draw();
+	std::cout << "test string" << std::endl;
+	time_t start = time(0);
+	while (difftime(time(0), start) < 3)
+	{ }
+
+
+}
+void Game::beginGame()
+{
+	assets->addTexture("terrain", "assets/terrain_ss.png");
+	//assets->addTexture("terrain", "assets/ugly_ss.png");
+	assets->addTexture("player", "assets/player_animations.png");
+	assets->addTexture("projectile", "assets/water_bottle.png");
+	assets->addTexture("scarecrow", "assets/scarecrow_animations.png");
+	assets->addTexture("sandwich", "assets/sandwich_animation.png");
+
+	map = new Map("terrain", 3, 32);
+
+	//ECS implementation
+
+	map->loadMap("assets/map.map", 25, 20);
+	//map->loadMap("assets/ugly_collision_map.txt", 20, 8);
+
+	player.addComponent<TransformComponent>(800, 640, 32, 32, 4);
+	player.addComponent<SpriteComponent>("player", true);
+	player.addComponent<KeyboardController>();
+	player.addComponent<ColliderComponent>("player");
+	player.addGroup(groupPlayers);
+	player.addComponent<HealthComponent>(3, "player");
+
+	scarecrow.addComponent<TransformComponent>(1000, 640, 32, 32, 4);
+	scarecrow.addComponent<SpriteComponent>("scarecrow", true);
+	scarecrow.addComponent<ColliderComponent>("scarecrow"); // <- just adding in a tag
+	scarecrow.addGroup(groupScarecrows);
+	scarecrow.addComponent<RandomWalkComponent>();
+	scarecrow.addComponent<HealthComponent>(1, "scarecrow");
+	enemyTimer = time(0);
+
+	SDL_Color white = { 255, 255, 255, 255 };
+	label.addComponent<UILabel>(10, 10, "Test String", "arial", white);
+	controls.addComponent<UILabel>(10, 620, "CONTROLS: move: w-a-s-d shoot: space quit: ESC", "arial", white);
+
+	//assets->createProjectile(Vector2D(600, 600), Vector2D(2,0), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(600, 620), Vector2D(2, 0), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(400, 600), Vector2D(2, 1), 200, 2, "projectile");
+	//assets->createProjectile(Vector2D(600, 600), Vector2D(2, -1), 200, 2, "projectile");
+
+	enemiesSpawned = 1;
+	enemyLevel = 2;
+	enemiesLeftToKill = enemyLevel;
+	enemyTime = 4;
+
+	sandwich.addComponent<TransformComponent>(-1, 320, 32, 32, 4);
+	sandwich.addComponent<SpriteComponent>("sandwich", true, true);
+	sandwich.addComponent<ColliderComponent>("sandwich");
+
 }

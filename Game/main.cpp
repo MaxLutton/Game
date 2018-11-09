@@ -1,6 +1,8 @@
 #include "Game.h"
+#include "Map.h"
 
 Game* game = nullptr;
+
 
 int main(int argc, char* argv[]) {
 
@@ -12,6 +14,8 @@ int main(int argc, char* argv[]) {
 
 	game = new Game();
 	game->init("Game Engine", 800, 640, false);
+	//game->flashWelcome();
+	game->beginGame();
 
 	while (game->running()) {
 		frameStart = SDL_GetTicks();
@@ -28,3 +32,5 @@ int main(int argc, char* argv[]) {
 	game->clean();
 	return 0;
 }
+
+

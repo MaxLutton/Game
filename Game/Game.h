@@ -16,6 +16,9 @@ public:
 	~Game();
 
 	void init(const char* title, int width, int height, bool fullscreen);
+	void flashWelcome();
+	void flashDead();
+	void beginGame();
 	void handleEvents();
 	void update();
 	void render();
@@ -32,7 +35,11 @@ public:
 	static time_t enemyTimer;
 	static int enemiesSpawned;
 	static int enemyLevel;
-
+	static int enemiesLeftToKill;
+	static bool goToMenu;
+	static int score;
+	static int enemyTime;
+	bool sandwichOn = false;
 	enum groupLabels : std::size_t
 	{
 		groupMap,

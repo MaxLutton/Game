@@ -42,6 +42,13 @@ public:
 
 		setTex(id);
 	}
+	SpriteComponent(std::string id, bool isAnimated, bool isSandwich) : animated(isAnimated)
+	{
+		Animation sandwich = Animation(0, 5, 100);
+		animations.emplace("Sandwich", sandwich);
+		play("Sandwich");
+		setTex(id);
+	}
 
 	~SpriteComponent() {}
 

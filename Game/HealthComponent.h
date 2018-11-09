@@ -32,6 +32,7 @@ public:
 			{
 				setDeath(time(0));
 				dead = true;
+				Game::enemiesLeftToKill--;
 			}
 			else if (difftime(time(0), zeroLives) > 1)
 			{
