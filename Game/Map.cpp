@@ -4,6 +4,7 @@
 #include <fstream>
 #include "ECS.h"
 #include "Components.h"
+#include "Scenes/GameScene.h"
 
 extern Manager manager;
 
@@ -45,7 +46,7 @@ void Map::loadMap(std::string path, int sizeX, int sizeY)
 			{
 				auto& tcol(manager.addEntity());
 				tcol.addComponent<ColliderComponent>("terrain", x * scaledSize, y * scaledSize, scaledSize);
-				tcol.addGroup(Game::groupColliders);
+				tcol.addGroup(GameScene::groupColliders);
 			}
 			mapFile.ignore();
 		}
@@ -57,6 +58,6 @@ void Map::addTile(int srcX, int srcY, int xPos, int yPos)
 {
 	auto& tile(manager.addEntity());
 	tile.addComponent<TileComponent>(srcX, srcY, xPos, yPos, tileSize, mapScale, texID);
-	tile.addGroup(Game::groupMap);
+	tile.addGroup(GameScene::groupMap);
 
 }

@@ -3,7 +3,7 @@
 #include "ECS.h"
 #include "Components.h"
 #include "Vector2D.h"
-
+#include "Scenes/GameScene.h"
 class KeyboardController : public Component {
 public:
 	TransformComponent* transform;
@@ -76,16 +76,16 @@ public:
 					switch (shootDirection)
 					{
 					case 0:
-						Game::assets->createProjectile(Vector2D(Game::mPlayerPos.x+ 50, Game::mPlayerPos.y - 50), Vector2D(0, -2), 100, 2, "projectile");
+						Game::assets->createProjectile(Vector2D(GameScene::mPlayerPos.x+ 50, GameScene::mPlayerPos.y - 50), Vector2D(0, -2), 100, 2, "projectile");
 						break;
 					case 1:
-						Game::assets->createProjectile(Vector2D(Game::mPlayerPos.x - 40, Game::mPlayerPos.y + 20), Vector2D(-2, 0), 100, 2, "projectile");
+						Game::assets->createProjectile(Vector2D(GameScene::mPlayerPos.x - 40, GameScene::mPlayerPos.y + 20), Vector2D(-2, 0), 100, 2, "projectile");
 						break;
 					case 2:
-						Game::assets->createProjectile(Vector2D(Game::mPlayerPos.x + 130, Game::mPlayerPos.y + 20), Vector2D(2, 0), 100, 2, "projectile");
+						Game::assets->createProjectile(Vector2D(GameScene::mPlayerPos.x + 130, GameScene::mPlayerPos.y + 20), Vector2D(2, 0), 100, 2, "projectile");
 						break;
 					case 3:
-						Game::assets->createProjectile(Vector2D(Game::mPlayerPos.x + 50, Game::mPlayerPos.y + 130), Vector2D(0, +2), 100, 2, "projectile");
+						Game::assets->createProjectile(Vector2D(GameScene::mPlayerPos.x + 50, GameScene::mPlayerPos.y + 130), Vector2D(0, +2), 100, 2, "projectile");
 						break;
 					}
 

@@ -17,11 +17,11 @@ auto& scarecrow(manager.addEntity());
 auto& sandwich(manager.addEntity());
 auto& controls(manager.addEntity());
 
-auto& tiles(manager.getGroup(Game::groupMap));
-auto& players(manager.getGroup(Game::groupPlayers));
-auto& colliders(manager.getGroup(Game::groupColliders));
-auto& projectiles(manager.getGroup(Game::groupProjectiles));
-auto& scarecrows(manager.getGroup(Game::groupScarecrows)); // <- getting all the scarecrow entities from manager
+auto& tiles(manager.getGroup(GameScene::groupMap));
+auto& players(manager.getGroup(GameScene::groupPlayers));
+auto& colliders(manager.getGroup(GameScene::groupColliders));
+auto& projectiles(manager.getGroup(GameScene::groupProjectiles));
+auto& scarecrows(manager.getGroup(GameScene::groupScarecrows)); // <- getting all the scarecrow entities from manager
 
 Vector2D GameScene::mPlayerPos;
 time_t GameScene::lastLostLife;
@@ -76,7 +76,7 @@ void GameScene::init()
 void GameScene::update()
 {
 	SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider;
-	mPlayerPos = player.getComponent<TransformComponent>().position;
+	this->mPlayerPos = player.getComponent<TransformComponent>().position;
 	int lives = player.getComponent<HealthComponent>().lives;
 	std::stringstream ss;
 	ss << " Daisy's Lives: " << lives << " Daisy's Score: " << score << " Stupid Scarecrows left: " << enemiesLeftToKill;
