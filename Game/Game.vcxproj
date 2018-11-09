@@ -157,12 +157,13 @@
     <ClInclude Include="Components.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="GameObject.h" />
     <ClInclude Include="HealthComponent.h" />
     <ClInclude Include="KeyboardController.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="ProjectileComponent.h" />
     <ClInclude Include="RandomWalkComponent.h" />
+    <ClInclude Include="Scenes\GameScene.h" />
+    <ClInclude Include="Scenes\Scene.h" />
     <ClInclude Include="TileComponent.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="resource.h" />
@@ -179,9 +180,9 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="ECS.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Scenes\GameScene.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="Vector2D.cpp" />
   </ItemGroup>

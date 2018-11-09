@@ -7,7 +7,6 @@ public:
 	~Map();
 
 	void loadMap(std::string path, int sizeX, int sizeY);
-	void loadMenu(std::string path, int sizeX, int sizeY);
 	void addTile(int srcX, int srcY, int xPos, int yPos);
 
 private:

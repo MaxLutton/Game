@@ -24,9 +24,6 @@
     <ClInclude Include="TextureManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Map.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,6 +72,12 @@
     <ClInclude Include="HealthComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Scenes\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scenes\GameScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Game.rc">
@@ -91,9 +94,6 @@
     <ClCompile Include="TextureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Map.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -107,6 +107,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scenes\GameScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

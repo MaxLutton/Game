@@ -2,7 +2,7 @@
 #include "Map.h"
 
 Game* game = nullptr;
-
+int Game::scene;
 
 int main(int argc, char* argv[]) {
 
@@ -14,14 +14,16 @@ int main(int argc, char* argv[]) {
 
 	game = new Game();
 	game->init("Game Engine", 800, 640, false);
-	//game->flashWelcome();
-	game->beginGame();
+	//game->beginGame();
 
 	while (game->running()) {
 		frameStart = SDL_GetTicks();
-		game->handleEvents();
-		game->update();
-		game->render();
+		if (Game::scene == 1)
+		{
+			game->handleEvents();
+			game->update();
+			game->render();
+		}
 
 		frameTime = SDL_GetTicks() - frameStart;
 		// To limit frame rate

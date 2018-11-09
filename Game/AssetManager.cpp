@@ -1,5 +1,6 @@
 #include "AssetManager.h"
 #include "Components.h"
+#include "Scenes/GameScene.h"
 AssetManager::AssetManager(Manager* man) : manager(man) {}
 
 AssetManager::~AssetManager() {
@@ -12,7 +13,7 @@ void AssetManager::createProjectile(Vector2D pos, Vector2D vel, int range, int s
 	projectile.addComponent<SpriteComponent>(id, false);
 	projectile.addComponent<ProjectileComponent>(range, speed, vel);
 	projectile.addComponent<ColliderComponent>("projectile");
-	projectile.addGroup(Game::groupProjectiles);
+	projectile.addGroup(GameScene::groupProjectiles);
 }
 
 void AssetManager::addTexture(std::string id, const char* path)
