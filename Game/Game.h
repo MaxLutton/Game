@@ -47,11 +47,11 @@ public:
 		groupScarecrows
 	};
 
+		static Scene* currentScene;
 
 private:
 	int count;
 	SDL_Window* window;
-	Scene* currentScene;
 };
 
 
